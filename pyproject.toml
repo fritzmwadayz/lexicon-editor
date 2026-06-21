@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lexed"
+version = "0.1.0"
+description = "A terminal-based lexicon editor for low-resource languages"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Mwadime", email = "you@example.com"},
+]
+keywords = ["lexicon", "dictionary", "tui", "textual", "low-resource", "nlp"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    "textual>=0.50.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/fritzmwadayz/lexicon-editor"
+Repository = "https://github.com/fritzmwadayz/lexicon-editor"
+Issues = "https://github.com/fritzmwadayz/lexicon-editor/issues"
+
+[project.scripts]
+lexed = "lexed.app:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lexed*"]
