@@ -1,0 +1,295 @@
+/* style.tcss
+   Tokyo Night color palette:
+   bg #1A1B26, panel #1F2030, input #16161E,
+   taita #FF9E64, swahili #9ECE6A, english #7AA2F7,
+   border #3B4261, border-focus #7AA2F7, purple #BB9AF7
+*/
+
+Screen {
+    background: #1a1b26;
+    color: #c0caf5;
+}
+
+/* ---- status bar ---- */
+
+#statusbar {
+    width: 100%;
+    height: 1;
+    background: #15161e;
+    color: #565f89;
+    padding: 0 2;
+    border-bottom: solid #3b4261;
+}
+
+/* ---- filter bar ---- */
+
+#filter-bar {
+    width: 100%;
+    height: auto;
+    padding: 0 2;
+    background: #15161e;
+    border-bottom: solid #3b4261;
+}
+
+.filter-label {
+    width: 8;
+    color: #565f89;
+    padding: 0 1;
+    content-align: right middle;
+}
+
+#filter-input {
+    width: 1fr;
+    height: 1;
+    background: #16161e;
+    border: none;
+    color: #c0caf5;
+    margin-right: 2;
+}
+
+.filter-status {
+    width: 14;
+    height: 1;
+    background: #16161e;
+    border: none;
+    color: #9ece6a;
+}
+
+#filter-input:focus, .filter-status:focus {
+    border: none;
+    background: #1c1d2b;
+}
+
+/* ---- headword row ---- */
+
+#headword-row {
+    width: 100%;
+    height: auto;
+    padding: 1 2 0 2;
+    align: left middle;
+}
+
+#headword-label {
+    color: #565f89;
+    width: auto;
+    margin-right: 2;
+}
+
+#headword-input {
+    width: 28;
+    height: 1;
+    color: #ff9e64;
+    text-style: bold;
+    background: #16161e;
+    border: none;
+    padding: 0 1;
+}
+
+#headword-input:focus {
+    border: none;
+    background: #1c1d2b;
+}
+
+#headword-original {
+    color: #565f89;
+    margin-left: 1;
+}
+
+#headword-meta {
+    color: #565f89;
+    margin-left: 2;
+}
+
+/* ---- generic panel ---- */
+
+.panel {
+    width: 100%;
+    border: round #3b4261;
+    background: #1f2030;
+    margin: 1 2 0 2;
+    height: auto;
+    padding: 0;
+}
+
+.panel-head {
+    width: 100%;
+    height: 1;
+    background: #1a1c2c;
+    color: #565f89;
+    padding: 0 1;
+    text-style: bold;
+}
+
+.panel-body {
+    width: 100%;
+    padding: 1;
+    height: auto;
+}
+
+/* ---- variations table ---- */
+
+.var-row {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1;
+}
+
+.var-input {
+    width: 2fr;
+    height: 1;
+    background: #16161e;
+    border: none;
+    color: #ff9e64;
+    padding: 0 1;
+}
+
+.var-dialect {
+    width: 1fr;
+    height: 1;
+    background: #16161e;
+    border: none;
+    color: #bb9af7;
+    padding: 0 1;
+}
+
+.var-notes {
+    width: 2fr;
+    height: 1;
+    background: #16161e;
+    border: none;
+    color: #c0caf5;
+    padding: 0 1;
+}
+
+.var-row Input:focus {
+    border: none;
+    background: #1c1d2b;
+}
+
+.del-btn {
+    width: 3;
+    min-width: 3;
+    background: #1f2030;
+    border: none;
+    color: #565f89;
+    content-align: center middle;
+}
+
+.del-btn:hover {
+    color: #f7768e;
+}
+
+#add-var-btn, #add-example-btn {
+    width: auto;
+    height: 1;
+    background: #1f2030;
+    border: none;
+    color: #8b8fa3;
+    margin-top: 1;
+}
+
+#add-var-btn:hover, #add-example-btn:hover {
+    color: #ff9e64;
+    text-style: underline;
+}
+
+/* ---- glosses ---- */
+
+#gloss-row {
+    width: 100%;
+    height: auto;
+}
+
+.gloss-col {
+    width: 1fr;
+    height: auto;
+    padding: 0 1;
+}
+
+.gloss-label-sw { color: #9ece6a; }
+.gloss-label-en { color: #7aa2f7; }
+
+.gloss-input {
+    height: 1;
+    background: #16161e;
+    border: none;
+    padding: 0 1;
+}
+
+.gloss-input:focus {
+    border: none;
+    background: #1c1d2b;
+}
+
+/* ---- usage examples ---- */
+
+.example-block {
+    width: 100%;
+    border: round #3b4261;
+    margin-bottom: 1;
+    height: auto;
+}
+
+.example-head {
+    width: 100%;
+    height: 1;
+    background: #1a1c2c;
+    color: #565f89;
+    padding: 0 1;
+}
+
+.example-head .ref {
+    color: #ffffff;
+    text-style: bold;
+}
+
+.example-head .ref-detail {
+    color: #565f89;
+    margin-left: 2;
+}
+
+.eline {
+    width: 100%;
+    height: auto;
+    padding: 0 1;
+}
+
+.elang {
+    width: 4;
+    color: #565f89;
+}
+
+.elang-ta { color: #ff9e64; }
+.elang-sw { color: #9ece6a; }
+.elang-en { color: #7aa2f7; }
+
+.etext-input {
+    height: 1;
+    background: #16161e;
+    border: none;
+    padding: 0 1;
+}
+
+.etext-input:focus {
+    border: none;
+    background: #1c1d2b;
+}
+
+/* ---- notes ---- */
+
+#notes-input {
+    background: #16161e;
+    border: solid #3b4261;
+    color: #c0caf5;
+    height: 4;
+}
+
+#notes-input:focus {
+    border: solid #7aa2f7;
+}
+
+/* ---- footer ---- */
+
+Footer {
+    background: #15161e;
+}
