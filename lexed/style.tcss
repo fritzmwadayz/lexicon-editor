@@ -10,26 +10,55 @@ Screen {
     color: #c0caf5;
 }
 
-/* ---- status bar ---- */
+/* ---- unified top bar ---- */
 
-#statusbar {
+#top-bar {
     width: 100%;
     height: 1;
     background: #15161e;
     color: #565f89;
-    padding: 0 2;
+    padding: 0 1;
     border-bottom: solid #3b4261;
 }
 
-/* ---- filter bar ---- */
-
-#filter-bar {
-    width: 100%;
-    height: auto;
-    padding: 0 2;
-    background: #15161e;
-    border-bottom: solid #3b4261;
+.status-badge {
+    width: 14;
+    color: #c0caf5;
+    padding: 0 1;
+    text-style: bold;
 }
+
+.compact-filter {
+    width: 24;
+    height: 1;
+    background: #1a1b26;
+    border: none;
+    color: #c0caf5;
+    margin: 0 1;
+    padding: 0 1;
+}
+
+.compact-filter:focus {
+    border: none;
+    background: #1c1d2b;
+}
+
+.progress-badge {
+    width: auto;
+    color: #7aa2f7; /* Blue */
+    text-style: bold;
+    margin: 0 1;
+}
+
+.context-info {
+    width: 1fr;
+    text-align: right;
+    margin-right: 1;
+}
+
+/* Dynamic text highlights used via Rich markup in app.py */
+.clean { color: #9ece6a; } /* Green */
+.dirty { color: #f7768e; text-style: bold; } /* Red */
 
 .filter-label {
     width: 8;

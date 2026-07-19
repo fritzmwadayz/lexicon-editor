@@ -48,6 +48,28 @@ class LexiconStore:
         cur = self.conn.execute("SELECT COUNT(*) FROM entries")
         return cur.fetchone()[0]
 
+    def get_progress_counts(self) -> dict[str, int]:
+        """Calculates global progress metrics for the status bar.
+        
+        Excludes words categorized as 'name' since they are not part
+        of the core dictionary workflow.
+        
+        Returns:
+            A dictionary with 'total' active words and 'reviewed' words.
+        """
+        base_where = "WHERE (category IS NULL OR category != 'name')"
+        
+        total = self.conn.execute(
+            f"SELECT COUNT(*) FROM entries {base_where}"
+        ).fetchone()[0]
+        
+        # Count both 'reviewed' and 'approved' as "done"
+        reviewed = self.conn.execute(
+            f"SELECT COUNT(*) FROM entries {base_where} AND status IN ('reviewed', 'approved')"
+        ).fetchone()[0]
+        
+        return {"total": total, "reviewed": reviewed}
+
     def get_entry_ids(
         self, 
         filter_text: str = "", 

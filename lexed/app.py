@@ -129,23 +129,19 @@ class LexedApp(App):
         self.position = 0
         self.current: Entry | None = None
         self.dirty = False
+        
+        # Global progress tracking
+        self.progress_counts = {"total": 0, "reviewed": 0}
 
     # -- Lifecycle ----------------------------------------------------
 
     def compose(self) -> ComposeResult:
         """Builds the initial UI layout."""
         yield Static(id="statusbar")
-
-        with Horizontal(id="filter-bar"):
-            yield Static("filter:", classes="filter-label")
-            yield Input(placeholder="search word/gloss…", id="filter-input")
-            yield Static("status:", classes="filter-label")
-            yield Input(
-                placeholder="pending", 
-                id="status-filter", 
-                classes="filter-status", 
-                value="pending"
-            )
+        yield Static("○ pending", id="entry-status", classes="status-badge")
+        yield Input(placeholder="search...", id="filter-input", classes="compact-filter")
+        yield Static("Progress: 0/0 (0%)", id="progress", classes="progress-badge")
+        yield Static("", id="context", classes="context-info")
 
         with VerticalScroll(id="main-scroll"):
             with Horizontal(id="headword-row"):
@@ -182,15 +178,19 @@ class LexedApp(App):
         yield Footer()
 
     async def on_mount(self) -> None:
-        """Runs after the UI is mounted. Loads the first entry."""
+        """Runs after the UI is mounted. Loads the first entry and progress."""
+        self._refresh_progress()
         if self.entry_ids:
             await self.load_entry(self.entry_ids[self.position])
+            self.query_one("#headword-input", Input).focus()  # Jump straight to typing
         else:
             self.notify("No pending entries in database.", severity="warning")
-            
-        self.query_one("#filter-input", Input).focus()
 
-    # -- Filtering -----------------------------------------------------
+    # -- Filtering & Progress -----------------------------------------
+
+    def _refresh_progress(self) -> None:
+        """Updates the cached global progress counts from the database."""
+        self.progress_counts = self.store.get_progress_counts()
 
     def _refresh_ids(self) -> None:
         """Re-queries the database based on current filter states."""
@@ -200,16 +200,9 @@ class LexedApp(App):
         )
 
     def on_input_changed(self, event: Input.Changed) -> None:
-        """Responds to typing in the filter or status input bars."""
-        is_filter = event.input.id == "filter-input"
-        is_status = event.input.id == "status-filter"
-
-        if is_filter or is_status:
-            if is_filter:
-                self._filter_text = event.value
-            if is_status:
-                self._filter_status = event.value
-
+        """Responds to typing in the search bar."""
+        if event.input.id == "filter-input":
+            self._filter_text = event.value
             self._refresh_ids()
             
             if self.entry_ids:
@@ -217,7 +210,7 @@ class LexedApp(App):
                 self.call_after_refresh(self.load_entry, self.entry_ids[0])
             else:
                 self.current = None
-                self.query_one("#statusbar", Static).update("no matches")
+                self.query_one("#context", Static).update("no matches")
             return
 
         # Any other input field triggers the dirty state
@@ -264,7 +257,8 @@ class LexedApp(App):
         if entry.pos:
             meta_parts.append(entry.pos)
         meta_parts.append(f"×{entry.frequency}")
-        meta_parts.append(entry.status_display)
+        #meta_parts.append(entry.status_display)
+        self.query_one("#entry-status", Static).update(entry.status_display)
         
         self.query_one("#headword-meta", Static).update("  ".join(meta_parts))
 
@@ -337,34 +331,41 @@ class LexedApp(App):
         return entry
 
     def refresh_statusbar(self) -> None:
-        """Updates the text in the top status bar."""
-        total = len(self.entry_ids)
-        pos = self.position + 1 if total else 0
+        """Updates the widgets in the unified top bar."""
+        # 1. Progress (Middle Left)
+        total_words = self.progress_counts["total"]
+        reviewed_words = self.progress_counts["reviewed"]
+        pct = (reviewed_words / total_words * 100) if total_words else 0
+        self.query_one("#progress", Static).update(
+            f"Progress: {reviewed_words}/{total_words} ({pct:.0f}%)"
+        )
         
-        dirty_text = "[dirty]● unsaved" if self.dirty else "[clean]✓ saved"
+        # 2. Context & Dirty State (Far Right)
+        total_list = len(self.entry_ids)
+        pos = self.position + 1 if total_list else 0
+        list_text = f"entry {pos:04d}/{total_list}"
         
-        filter_hint = ""
-        if self._filter_text:
-            filter_hint += f" · filter: {self._filter_text}"
-        if self._filter_status:
-            filter_hint += f" · status: {self._filter_status}"
-
-        db_name = Path(self.store.db_path).name
-        message = f"entry {pos:04d}/{total}  ·  {db_name}{filter_hint}  ·  {dirty_text}"
-        self.query_one("#statusbar", Static).update(message)
+        if self.dirty:
+            dirty_text = "[dirty]● unsaved[/dirty]"
+        else:
+            dirty_text = "[clean]✓ saved[/clean]"
+            
+        self.query_one("#context", Static).update(f"{list_text} · {dirty_text}")
 
     # -- List State Management -----------------------------------------
 
     async def _advance_list(self, entry: Entry) -> None:
         """Handles UI state after an entry is saved or its status changes.
         
-        If the entry still belongs in the filtered view, it updates the UI in place.
-        If the entry dropped out of the filtered view (e.g. pending -> reviewed),
-        it loads the next valid entry in the list.
+        Refreshes global progress, then checks if the entry still belongs 
+        in the filtered view. If it dropped out, it loads the next valid entry.
         
         Args:
             entry: The entry that was just modified and saved.
         """
+        # Update the global progress tracker after a status change
+        self._refresh_progress()
+        
         self._refresh_ids()
         
         if entry.id in self.entry_ids:
