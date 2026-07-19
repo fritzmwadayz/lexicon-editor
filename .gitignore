@@ -44,4 +44,5 @@ docs/
 data/
 *.pyc
 data/
-*.pkl
+*.pkllexicon.db
+*.db
