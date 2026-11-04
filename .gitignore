@@ -46,3 +46,5 @@ data/
 data/
 *.pkllexicon.db
 *.db
+*.egg-info/
+__pycache__/
