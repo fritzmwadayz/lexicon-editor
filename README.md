@@ -1,62 +1,95 @@
-# lexed — Taita Lexicon Editor
+# lexed: Taita Lexicon Editor
 
-A terminal-based editor for curating a Taita/Swahili/English lexicon from a parallel Bible corpus.
+A keyboard-driven terminal editor for curating a Taita / Swahili / English lexicon built from a parallel Bible corpus. It works fully **offline** against a local SQLite file.
+
+`lexed` is the curation half of **TaitaLumi**. The data it edits is produced by the companion repo **[taita-dictionary](https://github.com/fritzmwadayz/taita-dictionary)**.
+
+> **Status:** early and single-user. See [Known gaps](#known-gaps).
+
+## Before you start: get a database
+
+`lexed` does not build its own data. You need a `lexicon.db` produced by the pipeline in `taita-dictionary`:
+
+1. Run [`seed_db.py`](https://github.com/fritzmwadayz/taita-dictionary/blob/main/seed_db.py) to create the database from the corpus.
+2. Run [`fixer.py`](https://github.com/fritzmwadayz/taita-dictionary/blob/main/fixer.py) to add the `category` column the editor needs.
+
+Full steps are in the [taita-dictionary README](https://github.com/fritzmwadayz/taita-dictionary#readme).
 
 ## Installation
 
 ```bash
+git clone https://github.com/fritzmwadayz/lexicon-editor
+cd lexicon-editor
 pip install -e .
 ```
 
-Or just install the dependency:
-
-```bash
-pip install textual
-```
+Or install just the dependency: `pip install textual`.
 
 ## Usage
 
 ```bash
-# Run against a lexicon database
 python -m lexed.app /path/to/lexicon.db
-
-# Or from the project root
-python -m lexed.app ../data/lexicon.db
 ```
 
-If the database doesn't exist, empty tables are created automatically.
+For example, with the two repos side by side and the database created by `seed_db.py`:
+
+```bash
+python -m lexed.app ../taita-dictionary/data/lexicon.db
+```
 
 ## Keybindings
 
 | Key | Action |
-|-----|--------|
+|---|---|
 | `Ctrl+S` | Save entry, mark as reviewed, load next |
-| `Ctrl+N` | Mark as proper name, skip to next |
+| `Ctrl+N` | Mark as proper name and skip to next |
 | `Ctrl+F` | Flag entry for later review |
-| `Alt+←` / `Alt+→` | Previous / next entry |
+| `Alt+Left` / `Alt+Right` | Previous / next entry |
 | `Ctrl+E` | Add usage example |
 | `Ctrl+V` | Add variation |
 | `Ctrl+T` | Cycle status manually |
 | `Esc` | Quit |
 
-## Data Model
+A full walkthrough of the screen, the editing workflow and the internals is in **[docs/TUI.md](docs/TUI.md)**.
 
-The editor expects a SQLite database with these tables (created by `seed_db.py`):
+## What it edits
 
-- `entries` — headwords, glosses, POS, status, frequency
-- `variations` — alternate forms, plurals, dialectal variants
-- `examples` — parallel Bible verses (Taita + Swahili + English)
-- `edit_history` — audit trail of all changes
+The editor works with four tables: `entries` (headwords, glosses, part of speech, status, frequency), `variations`, `examples` (parallel Bible verses) and `edit_history` (an audit trail of every field change). The schema is defined by `seed_db.py` in `taita-dictionary`.
 
-## Files
+## Project layout
 
 ```
 lexed/
-  __init__.py
-  app.py        — Textual application, UI layout, event handling
-  models.py     — Dataclasses: Entry, Variation, UsageExample
-  store.py      — SQLite read/write layer
-  style.tcss    — Dark theme styling
+  app.py       Textual application: layout, widgets, key bindings
+  models.py    Dataclasses: Entry, Variation, UsageExample
+  store.py     SQLite read/write layer (LexiconStore) and edit_history
+  style.tcss   Dark theme styling
 ```
 
-The UI is completely decoupled from storage — `app.py` only talks to `LexiconStore`, which returns/accepts plain `Entry` objects. You can swap the backend without touching the UI.
+`app.py` talks only to `LexiconStore`, which exchanges plain `Entry` objects, so the storage backend can be replaced without touching the UI.
+
+## Known gaps
+
+Things other people should know about, and that the maintainer plans to work on:
+
+- **Alphabetical queue only.** Entries are served in order of `word` (A to Z). There is no way to sort by frequency or corpus order, so the most useful words are not served first.
+- **No export.** Curated data can only be read out of the SQLite file. There is no built-in export to CSV, JSON or a dictionary format.
+- **Child tables are not audited.** `edit_history` records changes to the main fields of an entry, but not changes to its variations or examples. Those are deleted and re-inserted on every save.
+- **Blank fields are saved as empty strings,** not `NULL`. Queries that look for "empty" fields should check for both.
+- **Database setup is unclear.** An earlier version of this README claimed the editor creates empty tables if the file is missing. The storage layer does not create tables, so use a database produced by the pipeline.
+- **Single user, single machine.** The `changed_by` field defaults to `local`. There is no locking, syncing or multi-user support.
+- **Machine suggestions are not shown.** Swahili guesses generated by the pipeline (`taita_swahili_mappings.csv`) are not surfaced in the editor.
+- **No orthography guide.** There are no written rules yet for how a `corrected` headword should be spelled, so editing consistency depends on the editor's own judgement.
+- **No tests.**
+- **Housekeeping.** `lexed.egg-info/` is committed and should be in `.gitignore`.
+
+## Acknowledgements
+
+Built with AI assistance:
+
+- **GLM**: the terminal interface (`app.py`, `style.tcss`).
+- **Claude** (Anthropic): the backend and data layer.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

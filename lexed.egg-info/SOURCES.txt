@@ -1,3 +1,5 @@
+LICENSE
+README.md
 pyproject.toml
 setup.py
 lexed/__init__.py

@@ -103,7 +103,8 @@ class LexiconStore:
             query += " AND status = ?"
             params.append(status)
 
-        query += " ORDER BY word"
+        #query += " ORDER BY word"
+        query += " ORDER BY frequency DESC, word"
         cur = self.conn.execute(query, params)
         return [row[0] for row in cur.fetchall()]
 
