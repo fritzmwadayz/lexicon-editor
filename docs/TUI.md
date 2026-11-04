@@ -125,7 +125,7 @@ The app tracks the entry being edited, an unsaved-changes flag, the position in 
 ## 7. Extending it
 
 - **Change the queue order.** Edit the `ORDER BY` clause in `get_entry_ids()`. Ordering by `frequency DESC, word` serves the most common words first.
-- **Add a field.** Add the column to the schema in `taita-dictionary/seed_db.py` (and a migration for existing databases), the dataclass in `models.py`, the read in `load_entry()`, the `field_map` and `UPDATE` in `save_entry()`, and the widget in `app.py`.
+- **Add a field.** Add the column to the schema in `taita-dictionary/scripts/seed_db.py` (and a migration for existing databases), the dataclass in `models.py`, the read in `load_entry()`, the `field_map` and `UPDATE` in `save_entry()`, and the widget in `app.py`.
 - **Swap the backend.** `app.py` only talks to `LexiconStore` through `Entry` objects, so another store with the same methods can replace it.
 
 ## 8. Known gaps
